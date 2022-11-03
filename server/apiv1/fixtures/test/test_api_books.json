@@ -1,0 +1,65 @@
+[
+    {
+        "model": "apiv1.book",
+        "pk": 1,
+        "fields": {
+            "title": "1冊目の本",
+            "content": "1冊目の本感想",
+            "created_at": "2022-10-03T05:10:40.097000+09:00",
+            "updated_at": "2022-10-05T14:22:57.007000+09:00",
+            "published_at": "2011-07-25",
+            "categories": [
+                1
+            ]
+        }
+    },
+    {
+        "model": "apiv1.book",
+        "pk": 2,
+        "fields": {
+            "title": "2冊目の本",
+            "content": "2冊目の本感想",
+            "created_at": "2022-10-12T05:10:40.097000+09:00",
+            "updated_at": "2022-11-03T14:12:57.007000+09:00",
+            "published_at": "2020-04-10",
+            "categories": [
+                2
+            ]
+        }
+    },
+    {
+        "model": "apiv1.book",
+        "pk": 3,
+        "fields": {
+            "title": "3冊目の本",
+            "content": "3冊目の本感想",
+            "created_at": "2022-10-19T05:10:40.097000+09:00",
+            "updated_at": "2022-10-30T14:16:57.007000+09:00",
+            "published_at": "2010-11-18",
+            "categories": [
+                1
+            ]
+        }
+    },
+    {
+        "model": "apiv1.category",
+        "pk": 1,
+        "fields": {
+            "name": "カテゴリ1",
+            "slug": "category1",
+            "created_at": "2022-09-22T13:59:39.153000+09:00",
+            "updated_at": "2022-09-22T13:59:39.1530000+09:00"
+        }
+    }
+    ,
+    {
+        "model": "apiv1.category",
+        "pk": 2,
+        "fields": {
+            "name": "カテゴリ2",
+            "slug": "category2",
+            "created_at": "2022-09-22T14:59:23.133000+09:00",
+            "updated_at": "2022-09-22T14:59:23.133000+09:00"
+        }
+    }
+]
