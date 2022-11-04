@@ -1,6 +1,7 @@
-from cProfile import label
+from unicodedata import category
 from rest_framework import serializers
 from .models import Category, Book
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 # class UserSerializer(serializers.ModelSerializer):
 #     """ユーザーシリアライザー"""
@@ -11,7 +12,6 @@ from .models import Category, Book
 
 class CategorySerializer(serializers.ModelSerializer):
     """カテゴリシリアライザ"""
-    id = serializers.IntegerField(label="id") # デフォルトだとread_onlyなのでPOSTで追加できない。
     class Meta:
         model = Category
         fields = ('id', 'name', 'slug')
@@ -19,22 +19,21 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class BookSerializer(serializers.ModelSerializer):
     """本シリアライザ"""
-    categories = CategorySerializer(many=True)
+    categories = CategorySerializer(many=True, read_only=True) # 読み込み(デシリアライズ)用
+    category_ids = serializers.PrimaryKeyRelatedField( # 書き込み(シリアライズ)用
+        queryset=Category.objects.all(),
+        many=True,
+        write_only=True
+    )
     class Meta:
         model = Book
-        fields = ('id', 'title', 'content', 'created_at', 'updated_at', 'published_at', 'categories')
+        fields = ('id', 'title', 'content', 'created_at', 'updated_at', 'published_at', 'categories', 'category_ids')
     
     def create(self, validated_data):
-        categories = validated_data.pop('categories', [])
-        print(categories, validated_data)
+        category_ids = validated_data.pop('category_ids', [])
         book = Book.objects.create(**validated_data)
-        
-        if len(categories) != 0:
-            for category_dict in categories:
-                if not 'id' in category_dict:
-                    print("category_dict has no key named 'id'.")
-                    continue
-                category = Category.objects.get(id=category_dict['id'])
-                book.categories.add(category)
+        if len(category_ids) != 0:
+            for id in category_ids:
+                book.categories.add(id)
         book.save()
         return book

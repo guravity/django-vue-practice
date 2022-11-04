@@ -121,7 +121,7 @@ class TestApiBooks(TestCase):
         params = {
             'title': 'post本',
             'content': 'post感想',
-            'categories': [{'id':1,}],
+            'category_ids': [1],
             "published_at": "2019-12-09",
         }
 
@@ -145,7 +145,7 @@ class TestApiBooks(TestCase):
             'created_at': str(localtime(book.created_at)).replace(' ', 'T'),
             'updated_at': str(localtime(book.updated_at)).replace(' ', 'T'),
             "published_at": "2019-12-09",
-            'categories': [  # TODO: postレスポンスの外部キー
+            'categories': [
                 {
                     "id": 1,
                     "name": "カテゴリ1",

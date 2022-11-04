@@ -11,7 +11,5 @@ router.register(r'categories', views.CategoryViewSet)
 
 
 urlpatterns = [
-    path('categories-list/', views.CategoryListAPIView.as_view()),
-    path('books-list/', views.BookListAPIView.as_view()),
     url(r'', include(router.urls))
 ]
