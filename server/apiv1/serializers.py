@@ -37,3 +37,13 @@ class BookSerializer(serializers.ModelSerializer):
                 book.categories.add(id)
         book.save()
         return book
+    
+    def update(self, instance, validated_data):
+        category_ids = validated_data.pop('category_ids', [])
+        book = super().update(instance, validated_data)
+        book.categories.set([]) # カテゴリのリセット
+        if len(category_ids) != 0:
+            for id in category_ids:
+                instance.categories.add(id)
+        book.save()
+        return book
