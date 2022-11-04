@@ -2,10 +2,10 @@ from django.test import TestCase, Client
 from apiv1.models import Category, Book
 from django.utils.timezone import localtime, localdate
 
-
 class TestBookApiBooks(TestCase):
     '''本のAPIテスト'''
 
+    AUTH_URL = '/api/v1/api-token-auth/'
     TARGET_URL = '/api/v1/books/'
     fixtures = ['apiv1/fixtures/test/test_api_books.json']
 
@@ -18,6 +18,11 @@ class TestBookApiBooks(TestCase):
         expected_json_dict_list = [
             {
                 "id": 1,
+                "user": {
+                    "id": 1,
+                    "username": 'testuser',
+                    "email": "testuser@test.com",
+                },
                 "title": "1冊目の本",
                 "content": "1冊目の本感想",
                 "created_at": "2022-10-03T05:10:40.097000+09:00",
@@ -33,6 +38,11 @@ class TestBookApiBooks(TestCase):
             },
             {
                 "id": 2,
+                "user": {
+                    "id": 1,
+                    "username": 'testuser',
+                    "email": "testuser@test.com",
+                },
                 "title": "2冊目の本",
                 "content": "2冊目の本感想",
                 "created_at": "2022-10-12T05:10:40.097000+09:00",
@@ -48,6 +58,11 @@ class TestBookApiBooks(TestCase):
             },
             {
                 "id": 3,
+                "user": {
+                    "id": 1,
+                    "username": 'testuser',
+                    "email": "testuser@test.com",
+                },
                 "title": "3冊目の本",
                 "content": "3冊目の本感想",
                 "created_at": "2022-10-19T05:10:40.097000+09:00",
@@ -77,6 +92,11 @@ class TestBookApiBooks(TestCase):
         expected_json_dict_list = [
             {
                 "id": 1,
+                "user": {
+                    "id": 1,
+                    "username": 'testuser',
+                    "email": "testuser@test.com",
+                },
                 "title": "1冊目の本",
                 "content": "1冊目の本感想",
                 "created_at": "2022-10-03T05:10:40.097000+09:00",
@@ -92,6 +112,11 @@ class TestBookApiBooks(TestCase):
             },
             {
                 "id": 3,
+                "user": {
+                    "id": 1,
+                    "username": 'testuser',
+                    "email": "testuser@test.com",
+                },
                 "title": "3冊目の本",
                 "content": "3冊目の本感想",
                 "created_at": "2022-10-19T05:10:40.097000+09:00",
@@ -114,6 +139,11 @@ class TestBookApiBooks(TestCase):
         response = client.get(self.TARGET_URL+'1/')
         expected_json_dict = {
             "id": 1,
+            "user": {
+                "id": 1,
+                "username": 'testuser',
+                "email": "testuser@test.com",
+            },
             "title": "1冊目の本",
             "content": "1冊目の本感想",
             "created_at": "2022-10-03T05:10:40.097000+09:00",
@@ -134,6 +164,23 @@ class TestBookApiBooks(TestCase):
         '''POST 本を追加できるか'''
         client = Client()
 
+        # トークン取得できない。
+        # token_response = client.post(
+        #     self.AUTH_URL,
+        #     data = {
+        #         "username": "testuser",
+        #         "password": "password",
+        #         "email": "testuser@test.com",
+        #     },
+        #     content_type='application/json',
+        # )
+        # self.assertEqual(token_response.status_code, 200)
+        # self.assertTrue('token' in token_response.json())
+        # token = token_response.json()['token']
+        
+        # セッションログインできない。
+        client.login(username="testuser", password="password")
+
         params = {
             'title': 'post本',
             'content': 'post感想',
@@ -146,6 +193,7 @@ class TestBookApiBooks(TestCase):
             params,
             content_type='application/json',
             format='json',
+            # HTTP_AUTHORIZATION=f"Token {token}"
         )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 201)
@@ -282,4 +330,5 @@ class TestBookApiBooks(TestCase):
         # レスポンスの中身の確認(空)
         self.assertEqual(response.content, b'')
 
- # TODO: Category APIのテスト
+# TODO: Category APIのテスト
+# TODO: Tokenのテスト
