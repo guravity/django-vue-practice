@@ -1,4 +1,4 @@
-from rest_framework import generics, viewsets, filters
+from rest_framework import viewsets, filters
 from .models import Book, Category
 from .serializers import CategorySerializer, BookSerializer
 
@@ -26,5 +26,5 @@ class BookViewSet(viewsets.ModelViewSet):
     search_fields = ('title', 'content')
     ordering_fields = ('created_at', 'updated_at')
 
-#   def perform_create(self, serializer):
-#     serializer.save(user=self.request.user)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

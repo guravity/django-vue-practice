@@ -1,13 +1,21 @@
-from unicodedata import category
 from rest_framework import serializers
 from .models import Category, Book
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 
-# class UserSerializer(serializers.ModelSerializer):
-#     """ユーザーシリアライザー"""
-#     class Meta:
-#         model = get_user_model()
-#         fields = '__all__'
+class UserSerializer(serializers.ModelSerializer):
+    """ユーザーシリアライザー"""
+    class Meta:
+        model = get_user_model()
+        fields = ('id', 'username', 'email', 'password')
+        write_only_fields = ('password')
+        read_only_fields = ('id')
+
+        # def create(self, validated_data):
+        #     """passwordをハッシュ化して保存"""
+        #     password = validated_data.get('password')
+        #     validated_data['password'] = make_password(password)
+        #     return self.model.objects.create(**validated_data)
 
 
 class CategorySerializer(serializers.ModelSerializer):

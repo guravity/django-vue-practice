@@ -2,10 +2,8 @@ from django.test import TestCase, Client
 from apiv1.models import Category, Book
 from django.utils.timezone import localtime, localdate
 
-# Create your tests here.
 
-
-class TestApiBooks(TestCase):
+class TestBookApiBooks(TestCase):
     '''本のAPIテスト'''
 
     TARGET_URL = '/api/v1/books/'
@@ -283,3 +281,5 @@ class TestApiBooks(TestCase):
         self.assertEqual(Book.objects.count(), 2)
         # レスポンスの中身の確認(空)
         self.assertEqual(response.content, b'')
+
+ # TODO: Category APIのテスト

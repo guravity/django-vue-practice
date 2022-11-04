@@ -1,7 +1,9 @@
-from tokenize import blank_re
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
 
-# TODO: ユーザーログイン
+class User(AbstractUser):
+    pass
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -14,7 +16,7 @@ class Category(models.Model):
 
 
 class Book(models.Model):
-    #author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
