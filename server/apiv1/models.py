@@ -14,18 +14,17 @@ class Category(models.Model):
 
 
 class Book(models.Model):
-    categories = models.ManyToManyField(
-        to=Category,
-        related_name='categories',
-        blank = True,
-    )
     #author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateField()
-
+    categories = models.ManyToManyField(
+        to=Category,
+        related_name='categories',
+        blank = False,
+    )
     def __str__(self):
         return self.title
 

@@ -7,6 +7,8 @@ app_name = 'apiv1'
 
 router = routers.DefaultRouter()
 router.register(r'books', views.BookViewSet)
+router.register(r'categories', views.CategoryViewSet)
+
 
 urlpatterns = [
     path('categories-list/', views.CategoryListAPIView.as_view()),
