@@ -3,7 +3,7 @@
         "model": "apiv1.user",
         "pk": 1,
         "fields": {
-            "password": "password",
+            "password": "pbkdf2_sha256$260000$O2CJugvRp7L8GMfcLfv8eZ$X8Mf8PPmtf37Emg2nD42bJ/m3PQF+jYVpgKEifiDbHo=",
             "last_login": "2022-11-01T00:09:45.196000Z",
             "is_superuser": true,
             "username": "testuser",

@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from apiv1.models import Category, Book
 from django.utils.timezone import localtime, localdate
 
+
 class TestBookApiBooks(TestCase):
     '''本のAPIテスト'''
 
@@ -164,22 +165,20 @@ class TestBookApiBooks(TestCase):
         '''POST 本を追加できるか'''
         client = Client()
 
-        # トークン取得できない。
-        # token_response = client.post(
-        #     self.AUTH_URL,
-        #     data = {
-        #         "username": "testuser",
-        #         "password": "password",
-        #         "email": "testuser@test.com",
-        #     },
-        #     content_type='application/json',
-        # )
-        # self.assertEqual(token_response.status_code, 200)
-        # self.assertTrue('token' in token_response.json())
-        # token = token_response.json()['token']
-        
-        # セッションログインできない。
-        client.login(username="testuser", password="password")
+        # トークン取得
+        token_response = client.post(
+            self.AUTH_URL,
+            data={
+                "username": "testuser",
+                "password": "password",
+                "email": "testuser@test.com",
+            },
+            content_type='application/json',
+        )
+        # トークン認証のチェック
+        self.assertEqual(token_response.status_code, 200)
+        self.assertTrue('token' in token_response.json())
+        token = token_response.json()['token']
 
         params = {
             'title': 'post本',
@@ -193,7 +192,7 @@ class TestBookApiBooks(TestCase):
             params,
             content_type='application/json',
             format='json',
-            # HTTP_AUTHORIZATION=f"Token {token}"
+            HTTP_AUTHORIZATION=f"Token {token}"
         )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 201)
@@ -204,6 +203,11 @@ class TestBookApiBooks(TestCase):
         book = Book.objects.get(title='post本')
         expected_json_dict = {
             'id': book.id,
+            'user': {
+                "id": 1,
+                "username": "testuser",
+                "email": "testuser@test.com",
+            },
             'title': 'post本',
             'content': 'post感想',
             'created_at': str(localtime(book.created_at)).replace(' ', 'T'),
@@ -223,6 +227,21 @@ class TestBookApiBooks(TestCase):
     def test_5(self):
         '''PUT 本の情報を更新(全部)できるか'''
         client = Client()
+        # トークン取得
+        token_response = client.post(
+            self.AUTH_URL,
+            data={
+                "username": "testuser",
+                "password": "password",
+                "email": "testuser@test.com",
+            },
+            content_type='application/json',
+        )
+        # トークン認証のチェック
+        self.assertEqual(token_response.status_code, 200)
+        self.assertTrue('token' in token_response.json())
+        token = token_response.json()['token']
+
         params = {
             'title': 'put本',
             'content': 'put感想',
@@ -234,6 +253,7 @@ class TestBookApiBooks(TestCase):
             params,
             content_type='application/json',
             format='json',
+            HTTP_AUTHORIZATION=f"Token {token}",
         )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 200)
@@ -243,6 +263,11 @@ class TestBookApiBooks(TestCase):
         book = Book.objects.get(id=1)
         expected_json_dict = {
             "id": 1,
+            'user': {
+                "id": 1,
+                "username": "testuser",
+                "email": "testuser@test.com",
+            },
             "title": "put本",
             "content": "put感想",
             "created_at": "2022-10-03T05:10:40.097000+09:00",
@@ -262,6 +287,21 @@ class TestBookApiBooks(TestCase):
     def test_6(self):
         '''PUT レコードがない場合に404が返ってくるか'''
         client = Client()
+        # トークン取得
+        token_response = client.post(
+            self.AUTH_URL,
+            data={
+                "username": "testuser",
+                "password": "password",
+                "email": "testuser@test.com",
+            },
+            content_type='application/json',
+        )
+        # トークン認証のチェック
+        self.assertEqual(token_response.status_code, 200)
+        self.assertTrue('token' in token_response.json())
+        token = token_response.json()['token']
+
         params = {
             'title': 'put本',
             'content': 'put感想',
@@ -273,6 +313,7 @@ class TestBookApiBooks(TestCase):
             params,
             content_type='application/json',
             format='json',
+            HTTP_AUTHORIZATION=f"Token {token}",
         )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 404)
@@ -280,6 +321,21 @@ class TestBookApiBooks(TestCase):
     def test_7(self):
         '''PATCH 本の情報を更新(一部)できるか'''
         client = Client()
+        # トークン取得
+        token_response = client.post(
+            self.AUTH_URL,
+            data={
+                "username": "testuser",
+                "password": "password",
+                "email": "testuser@test.com",
+            },
+            content_type='application/json',
+        )
+        # トークン認証のチェック
+        self.assertEqual(token_response.status_code, 200)
+        self.assertTrue('token' in token_response.json())
+        token = token_response.json()['token']
+
         params = {
             'title': 'patch本',
             'category_ids': [1, 2],
@@ -289,6 +345,7 @@ class TestBookApiBooks(TestCase):
             params,
             content_type='application/json',
             format='json',
+            HTTP_AUTHORIZATION=f"Token {token}",
         )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 200)
@@ -298,6 +355,11 @@ class TestBookApiBooks(TestCase):
         book = Book.objects.get(id=1)
         expected_json_dict = {
             "id": 1,
+            'user': {
+                "id": 1,
+                "username": "testuser",
+                "email": "testuser@test.com",
+            },
             "title": "patch本",
             "content": "1冊目の本感想",
             "created_at": "2022-10-03T05:10:40.097000+09:00",
@@ -322,7 +384,25 @@ class TestBookApiBooks(TestCase):
     def test_8(self):
         """DELETE 本を削除できるか"""
         client = Client()
-        response = client.delete(self.TARGET_URL+'1/')
+        # トークン取得
+        token_response = client.post(
+            self.AUTH_URL,
+            data={
+                "username": "testuser",
+                "password": "password",
+                "email": "testuser@test.com",
+            },
+            content_type='application/json',
+        )
+        # トークン認証のチェック
+        self.assertEqual(token_response.status_code, 200)
+        self.assertTrue('token' in token_response.json())
+        token = token_response.json()['token']
+
+        response = client.delete(
+            self.TARGET_URL+'1/',
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 204)
         # DBのレコード数の確認
@@ -331,4 +411,6 @@ class TestBookApiBooks(TestCase):
         self.assertEqual(response.content, b'')
 
 # TODO: Category APIのテスト
-# TODO: Tokenのテスト
+# TODO: 認証周りのテスト
+# client.login(username="testuser", password="password")
+# Tokenのテスト
