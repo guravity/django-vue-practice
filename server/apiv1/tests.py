@@ -45,10 +45,9 @@ class TestAuth(TestCase):
         # トークン取得
         token_response = client.post(
             self.TOKEN_URL,
-            data={
+            data={ # fixureで定義したユーザーを使用
                 "username": "testuser",
                 "password": "password",
-                "email": "testuser@test.com",
             },
             content_type='application/json',
         )
@@ -62,7 +61,29 @@ class TestBookApi(TestCase):
 
     AUTH_URL = '/api/v1/api-token-auth/'
     TARGET_URL = '/api/v1/books/'
+    JWT_URL = '/api/v1/jwt-token/'
+
     fixtures = ['apiv1/fixtures/test/test_api_books.json']
+
+    @classmethod
+    def setUpClass(cls):
+        '''テストのセットアップ(初期化)'''
+        super().setUpClass()
+        
+        # userの取得
+        cls.user = get_user_model().objects.get(id=1)
+        # JWT Token取得
+        token_response = Client().post(
+            cls.JWT_URL,
+            data={
+                "username": "testuser",
+                "password": "password",
+                "email": "testuser@test.com",
+            },
+            content_type='application/json',
+        )
+        cls.jwt_access_token = token_response.json()['access']
+        cls.jwt_refresh_token = token_response.json()['refresh']
 
     def test_1(self):
         '''GET 本一覧が取得できるか'''
@@ -219,22 +240,24 @@ class TestBookApi(TestCase):
         '''POST 本を追加できるか'''
         client = Client()
 
-        # トークン取得
-        token_response = client.post(
-            self.AUTH_URL,
-            data={
-                "username": "testuser",
-                "password": "password",
-                "email": "testuser@test.com",
-            },
-            content_type='application/json',
-        )
-        # トークン認証のチェック
-        print(token_response)
-        self.assertEqual(token_response.status_code, 200)
-        self.assertTrue('token' in token_response.json())
-        token = token_response.json()['token']
-
+        ########################################################
+        # Token認証の場合
+        # # トークン取得
+        # token_response = client.post(
+        #     self.AUTH_URL,
+        #     data={
+        #         "username": "testuser",
+        #         "password": "password",
+        #         "email": "testuser@test.com",
+        #     },
+        #     content_type='application/json',
+        # )
+        # # トークン認証のチェック
+        # print(token_response)
+        # self.assertEqual(token_response.status_code, 200)
+        # self.assertTrue('token' in token_response.json())
+        # token = token_response.json()['token']
+        ########################################################
         params = {
             'title': 'post本',
             'content': 'post感想',
@@ -247,7 +270,8 @@ class TestBookApi(TestCase):
             params,
             content_type='application/json',
             format='json',
-            HTTP_AUTHORIZATION=f"Token {token}"
+            HTTP_AUTHORIZATION=f"Bearer {self.jwt_access_token}",
+            # HTTP_AUTHORIZATION=f"Token {token}" # Token認証の場合
         )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 201)
@@ -282,20 +306,6 @@ class TestBookApi(TestCase):
     def test_5(self):
         '''PUT 本の情報を更新(全部)できるか'''
         client = Client()
-        # トークン取得
-        token_response = client.post(
-            self.AUTH_URL,
-            data={
-                "username": "testuser",
-                "password": "password",
-                "email": "testuser@test.com",
-            },
-            content_type='application/json',
-        )
-        # トークン認証のチェック
-        self.assertEqual(token_response.status_code, 200)
-        self.assertTrue('token' in token_response.json())
-        token = token_response.json()['token']
 
         params = {
             'title': 'put本',
@@ -308,7 +318,7 @@ class TestBookApi(TestCase):
             params,
             content_type='application/json',
             format='json',
-            HTTP_AUTHORIZATION=f"Token {token}",
+            HTTP_AUTHORIZATION=f"Bearer {self.jwt_access_token}",
         )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 200)
@@ -376,20 +386,6 @@ class TestBookApi(TestCase):
     def test_7(self):
         '''PATCH 本の情報を更新(一部)できるか'''
         client = Client()
-        # トークン取得
-        token_response = client.post(
-            self.AUTH_URL,
-            data={
-                "username": "testuser",
-                "password": "password",
-                "email": "testuser@test.com",
-            },
-            content_type='application/json',
-        )
-        # トークン認証のチェック
-        self.assertEqual(token_response.status_code, 200)
-        self.assertTrue('token' in token_response.json())
-        token = token_response.json()['token']
 
         params = {
             'title': 'patch本',
@@ -400,7 +396,7 @@ class TestBookApi(TestCase):
             params,
             content_type='application/json',
             format='json',
-            HTTP_AUTHORIZATION=f"Token {token}",
+            HTTP_AUTHORIZATION=f"Bearer {self.jwt_access_token}",
         )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 200)
@@ -439,24 +435,10 @@ class TestBookApi(TestCase):
     def test_8(self):
         """DELETE 本を削除できるか"""
         client = Client()
-        # トークン取得
-        token_response = client.post(
-            self.AUTH_URL,
-            data={
-                "username": "testuser",
-                "password": "password",
-                "email": "testuser@test.com",
-            },
-            content_type='application/json',
-        )
-        # トークン認証のチェック
-        self.assertEqual(token_response.status_code, 200)
-        self.assertTrue('token' in token_response.json())
-        token = token_response.json()['token']
 
         response = client.delete(
             self.TARGET_URL+'1/',
-            HTTP_AUTHORIZATION=f"Token {token}",
+            HTTP_AUTHORIZATION=f"Bearer {self.jwt_access_token}",
         )
         # ステータスコードの確認
         self.assertEqual(response.status_code, 204)
@@ -467,5 +449,3 @@ class TestBookApi(TestCase):
 
 # TODO: Category APIのテスト
 # TODO: 認証周りのテスト
-# client.login(username="testuser", password="password")
-# Tokenのテスト
