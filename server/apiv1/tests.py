@@ -1,9 +1,63 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from apiv1.models import Category, Book
 from django.utils.timezone import localtime, localdate
 
+class TestAuth(TestCase):
+    '''JWT認証のテスト'''
 
-class TestBookApiBooks(TestCase):
+    JWT_URL = '/api/v1/jwt-token/'
+    TOKEN_URL = '/api/v1/api-token-auth/'
+
+    fixtures = ['apiv1/fixtures/test/test_api_books.json']
+
+    @classmethod
+    def setUpClass(cls):
+        '''テストのセットアップ(初期化)'''
+        super().setUpClass()
+        
+        # userの作成
+        get_user_model().objects.create_user(
+            username="user",
+            email="test@test.jp",
+            password="secret",
+        )
+
+    def test_1(self):
+        '''JWT認証'''
+        client = Client()
+        params = {
+            "username": "user",
+            "password": "secret",
+        }
+        response = client.post(
+            self.JWT_URL,
+            data=params,
+            content_type='application/json',
+        )
+        print(response)
+        self.assertTrue('refresh' in response.json())
+        self.assertTrue('access' in response.json())
+
+    def test_2(self):
+        '''トークン認証'''
+        client = Client()
+        # トークン取得
+        token_response = client.post(
+            self.TOKEN_URL,
+            data={
+                "username": "testuser",
+                "password": "password",
+                "email": "testuser@test.com",
+            },
+            content_type='application/json',
+        )
+        # トークン認証のチェック
+        print(token_response)
+        self.assertEqual(token_response.status_code, 200)
+        self.assertTrue('token' in token_response.json())
+
+class TestBookApi(TestCase):
     '''本のAPIテスト'''
 
     AUTH_URL = '/api/v1/api-token-auth/'
@@ -176,6 +230,7 @@ class TestBookApiBooks(TestCase):
             content_type='application/json',
         )
         # トークン認証のチェック
+        print(token_response)
         self.assertEqual(token_response.status_code, 200)
         self.assertTrue('token' in token_response.json())
         token = token_response.json()['token']

@@ -18,7 +18,7 @@ router.register(r'categories', views.CategoryViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls)),
-    path(r'^api-token-auth/', auth_views.obtain_auth_token),
-    path('jwt-token/', TokenObtainPairView.as_view()),
-    path('jwt-token/refresh/', TokenRefreshView.as_view()),
+    path(r'api-token-auth/', auth_views.obtain_auth_token),
+    path(r'jwt-token/', TokenObtainPairView.as_view()),
+    path(r'jwt-token/refresh/', TokenRefreshView.as_view()),
 ]
